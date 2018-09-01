@@ -1,6 +1,9 @@
 {
-  "name": "clubhouse-stats",
+  "name": "clubhouse-dashboard",
   "version": "1.0.0",
+  "engines": {
+    "node": "10.9.0"
+  },
   "scripts": {
     "client": "cd client && yarn start",
     "server": "nodemon server.js",
