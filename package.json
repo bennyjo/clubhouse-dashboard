@@ -12,6 +12,7 @@
     "heroku-postbuild": "cd client && yarn install && yarn install --only=dev --no-shrinkwrap && yarn run build"
   },
   "dependencies": {
+    "dotenv": "^6.0.0",
     "express": "latest"
   },
   "devDependencies": {
