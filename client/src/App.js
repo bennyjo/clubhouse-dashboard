@@ -11,26 +11,32 @@ class App extends Component {
   };
 
   componentDidMount() {
-    this.getProjects()
-      .then(projects => {
-        const labels = projects.map(project => project.name)
+    this.getTeams()
+      .then(teams => {
+        const labels = teams.map(team => team.name)
+        const project_counts = teams.map(team => team.project_ids.length)
 
         this.setState({
           chartData: {
             labels,
             datasets: [{
-              label: '# of Votes',
-              data: [12, 19, 3, 5, 2, 3],
+              label: 'Projects',
+              data: project_counts,
               borderWidth: 1
             }]
           }
       })
     });
-
-    this.getProjects()
-      .then(res => {})
-      .catch(err => console.log(err));
   }
+
+  getTeams = async () => {
+    const response = await fetch('/api/teams');
+    const body = await response.json();
+
+    if (response.status !== 200) throw Error(body.message);
+
+    return body;
+  };
 
   getProjects = async () => {
     const response = await fetch('/api/projects');

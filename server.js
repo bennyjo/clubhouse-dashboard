@@ -15,6 +15,12 @@ app.get('/api/projects', (req, res) => {
     .catch(err => console.log(err));
 });
 
+app.get('/api/teams', (req, res) => {
+  clubhouse.listTeams()
+    .then(resp => res.send(resp))
+    .catch(err => console.log(err));
+});
+
 if (process.env.NODE_ENV === 'production') {
   // Serve any static files
   app.use(express.static(path.join(__dirname, 'client/build')));
