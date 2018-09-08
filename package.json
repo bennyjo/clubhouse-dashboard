@@ -12,6 +12,7 @@
     "heroku-postbuild": "cd client && yarn install && yarn install --only=dev --no-shrinkwrap && yarn run build"
   },
   "dependencies": {
+    "clubhouse-lib": "^0.3.0",
     "dotenv": "^6.0.0",
     "express": "latest"
   },

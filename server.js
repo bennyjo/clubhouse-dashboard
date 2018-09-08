@@ -5,9 +5,14 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 5000;
 
+const Clubhouse = require('clubhouse-lib');
+const clubhouse = Clubhouse.create(process.env.CLUBHOUSE_API_KEY);
+
 // API calls
-app.get('/api/hello', (req, res) => {
-  res.send({ express: 'Hello From Express' });
+app.get('/api/projects', (req, res) => {
+  clubhouse.listProjects()
+    .then(resp => res.send(resp))
+    .catch(err => console.log(err));
 });
 
 if (process.env.NODE_ENV === 'production') {
