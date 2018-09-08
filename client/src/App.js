@@ -7,6 +7,8 @@ import { Bar } from 'react-chartjs-2';
 class App extends Component {
   state = {
     response: '',
+    teams: [],
+    selectedTeam: 'default',
     chartData: null
   };
 
@@ -25,8 +27,18 @@ class App extends Component {
               borderWidth: 1
             }]
           }
-      })
+        })
+
+        this.setState({teams})
     });
+  }
+
+  selectTeam(event) {
+    if (!event) {
+      return
+    }
+
+    this.setState({selectedTeam: event.target.selectedTeam});
   }
 
   getTeams = async () => {
@@ -50,6 +62,15 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <select value={this.state.selectedTeam} onChange={this.selectTeam.bind(this)}>
+          <option value="default">Select a team</option>
+          {
+            this.state.teams.map(team => {
+              return <option value={team.id} key={team.id}>{team.name}</option>
+            })
+          }
+        </select>
+
         { this.state.chartData ?
           <div className="chart-container">
               <Bar data={this.state.chartData}
