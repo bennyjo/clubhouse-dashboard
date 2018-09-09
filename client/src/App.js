@@ -38,7 +38,7 @@ class App extends Component {
       return
     }
 
-    this.setState({selectedTeam: event.target.selectedTeam});
+    this.setState({selectedTeam: event.target.value});
   }
 
   getTeams = async () => {
