@@ -32,20 +32,36 @@ class App extends Component {
       return;
     }
 
+    // Get projects for selected team
     this.getProjects(this.state.selectedTeamId)
       .then(projects => {
         const projectIds = projects.map(project => project.id);
 
-        this.getStories(projectIds)
+        // Get stories for projects
+        this.getStories(projectIds, {started: true})
           .then(stories => {
-            console.log(stories);
+            console.log(stories.map(story => story.started_at))
+            console.log(stories)
+
+            // Sort stories into sprints
+            const sprints = {
+              'q3s3': [new Date('August 8, 2018'), new Date('August 21, 2018')],
+              'q3s4': [new Date('August 22, 2018'), new Date('September 4, 2018')],
+              'q3s5': [new Date('September 5, 2018'), new Date('September 18, 2018')],
+              'q3s6': [new Date('September 19, 2018'), new Date('October 2, 2018')]
+            }
+
+            const sprintNames = Object.keys(sprints);
+
+            sprintNames.map(sprintNames => {
+              
+            });
+
+            // Calculate average cycle time for stories in intervals
+
           })
       })
-
-    // Get projects for selected team
-    // Get stories for projects
-    // Sort stories into sprints
-    // Calculate average cycle time for stories in intervals
+    
 
     // Get the projects for the selectedTeamId
     // const labels = teams.map(team => team.name)
@@ -61,18 +77,6 @@ class App extends Component {
     //     }]
     //   }
     // })
-
-    const sprints = {
-      'q3s3': [new Date('August 8, 2018'), new Date('August 21, 2018')],
-      'q3s4': [new Date('August 22, 2018'), new Date('September 4, 2018')],
-      'q3s5': [new Date('September 5, 2018'), new Date('September 18, 2018')],
-      'q3s6': [new Date('September 19, 2018'), new Date('October 2, 2018')]
-    }
-
-    const sprintNames = Object.keys(sprints);
-
-    // Find all stories in each interval
-    sprintNames.forEach(sprintName => {});
 
     // Calculate cycle time: story.start_time - story.end_time, round up to full days
 
@@ -101,7 +105,7 @@ class App extends Component {
     return projects;
   };
 
-  getStories = async (projectIds) => {
+  getStories = async (projectIds, filters) => {
     if (!Array.isArray(projectIds) || !projectIds.length) {
       throw Error('No project ids given. Need at least one project id to list stories for.')
     }
@@ -110,7 +114,12 @@ class App extends Component {
     let uri = `/api/projects/stories?projectId=${firstProjectId}`;
 
     projectIds.forEach(projectId => {
-      uri = uri + `&projectId=${projectId}`
+      uri = uri + `&projectId=${projectId}`;
+    });
+
+    Object.keys(filters).forEach(filterName => {
+      const filterValue = filters[filterName];
+      uri = uri + `&${filterName}=${filterValue}`;
     });
 
     const response = await fetch(uri);

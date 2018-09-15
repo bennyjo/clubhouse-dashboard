@@ -23,6 +23,7 @@ app.get('/api/teams', (req, res) => {
 
 app.get('/api/projects/stories', (req, res) => {
   const projectIdQuery = req.query.projectId;
+  const filterStarted = req.query.started;
   const projectIds = Array.isArray(projectIdQuery)
     ? projectIdQuery
     : [projectIdQuery];
@@ -30,7 +31,13 @@ app.get('/api/projects/stories', (req, res) => {
   if (projectIds && projectIds.length) {
     Promise.all(projectIds.map(projectId => clubhouse.listStories(projectId)))
       .then(responses => {
-        res.send([].concat(...responses))
+        let stories = [].concat(...responses);
+
+        if (filterStarted) {
+          stories = stories.filter(stories => stories.started);
+        }
+
+        res.send(stories.sort((a, b) => new Date(b.started_at) - new Date(a.started_at)));
       })
       .catch(err => console.log(err));
   } else {
