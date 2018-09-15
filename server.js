@@ -24,6 +24,7 @@ app.get('/api/teams', (req, res) => {
 app.get('/api/projects/stories', (req, res) => {
   const projectIdQuery = req.query.projectId;
   const filterStarted = req.query.started;
+  const filterCompleted = req.query.completed;
   const projectIds = Array.isArray(projectIdQuery)
     ? projectIdQuery
     : [projectIdQuery];
@@ -37,6 +38,10 @@ app.get('/api/projects/stories', (req, res) => {
           stories = stories.filter(stories => stories.started);
         }
 
+        if (filterCompleted) {
+          stories = stories.filter(stories => stories.completed);
+        }
+        
         res.send(stories.sort((a, b) => new Date(b.started_at) - new Date(a.started_at)));
       })
       .catch(err => console.log(err));

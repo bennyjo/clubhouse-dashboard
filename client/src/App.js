@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import logo from './logo.svg';
 import './App.css';
 
-import { Bar } from 'react-chartjs-2';
+import { Scatter } from 'react-chartjs-2';
 
 class App extends Component {
   state = {
@@ -38,27 +38,37 @@ class App extends Component {
         const projectIds = projects.map(project => project.id);
 
         // Get stories for projects
-        this.getStories(projectIds, {started: true})
+        this.getStories(projectIds, {started: true, completed: true})
           .then(stories => {
-            console.log(stories.map(story => story.started_at))
-            console.log(stories)
+            console.log(stories);
 
-            // Sort stories into sprints
-            const sprints = {
-              'q3s3': [new Date('August 8, 2018'), new Date('August 21, 2018')],
-              'q3s4': [new Date('August 22, 2018'), new Date('September 4, 2018')],
-              'q3s5': [new Date('September 5, 2018'), new Date('September 18, 2018')],
-              'q3s6': [new Date('September 19, 2018'), new Date('October 2, 2018')]
+            function dayCount(started_date, completed_date) {
+              const oneDay = 24 * 60 * 60 * 1000;
+              const diffDays = Math.round(Math.abs((new Date(started_date).getTime() - new Date(completed_date).getTime())/(oneDay)));
+
+              return diffDays;
             }
 
-            const sprintNames = Object.keys(sprints);
-
-            sprintNames.map(sprintNames => {
-              
+            const data = stories.map(story => {
+              return {
+                t: story.completed_at,
+                y: dayCount(story.started_at, story.completed_at)
+              }
             });
 
-            // Calculate average cycle time for stories in intervals
+            console.log(data)
 
+            this.setState({
+              chartData: {
+                datasets: [{
+                  label: 'Cycle times',
+                  data,
+                  borderWidth: 1
+                }]
+              }
+            })
+
+            // Calculate average cycle time for stories in intervals
           })
       })
     
@@ -66,17 +76,6 @@ class App extends Component {
     // Get the projects for the selectedTeamId
     // const labels = teams.map(team => team.name)
     // const project_counts = teams.map(team => team.project_ids.length)
-
-    // this.setState({
-    //   chartData: {
-    //     labels,
-    //     datasets: [{
-    //       label: 'Projects',
-    //       data: project_counts,
-    //       borderWidth: 1
-    //     }]
-    //   }
-    // })
 
     // Calculate cycle time: story.start_time - story.end_time, round up to full days
 
@@ -144,10 +143,15 @@ class App extends Component {
 
         { this.state.chartData ?
           <div className="chart-container">
-              <Bar data={this.state.chartData}
+              <Scatter data={this.state.chartData}
                 options={{
                   responsive: true,
-                  maintainAspectRatio: false
+                  maintainAspectRatio: false,
+                  scales: {
+                    xAxes: [{
+                        type: 'time'
+                    }]
+                  }
                 }
               }/> 
           </div>
