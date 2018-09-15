@@ -33,7 +33,14 @@ class App extends Component {
     }
 
     this.getProjects(this.state.selectedTeamId)
-      .then(projects => console.log(projects))
+      .then(projects => {
+        const projectIds = projects.map(project => project.id);
+
+        this.getStories(projectIds)
+          .then(stories => {
+            console.log(stories);
+          })
+      })
 
     // Get projects for selected team
     // Get stories for projects
@@ -94,13 +101,24 @@ class App extends Component {
     return projects;
   };
 
-  getStories = async (team) => {
-    const response = await fetch('/api/stories');
-    const body = await response.json();
+  getStories = async (projectIds) => {
+    if (!Array.isArray(projectIds) || !projectIds.length) {
+      throw Error('No project ids given. Need at least one project id to list stories for.')
+    }
 
-    if (response.status !== 200) throw Error(body.message);
+    const firstProjectId = projectIds.shift();
+    let uri = `/api/projects/stories?projectId=${firstProjectId}`;
 
-    return body;
+    projectIds.forEach(projectId => {
+      uri = uri + `&projectId=${projectId}`
+    });
+
+    const response = await fetch(uri);
+    const stories = await response.json();
+
+    if (response.status !== 200) throw Error(stories.message);
+
+    return stories;
   };
 
   render() {

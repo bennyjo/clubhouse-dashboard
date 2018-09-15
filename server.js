@@ -21,6 +21,25 @@ app.get('/api/teams', (req, res) => {
     .catch(err => console.log(err));
 });
 
+app.get('/api/projects/stories', (req, res) => {
+  const projectIdQuery = req.query.projectId;
+  const projectIds = Array.isArray(projectIdQuery)
+    ? projectIdQuery
+    : [projectIdQuery];
+  
+  if (projectIds && projectIds.length) {
+    Promise.all(projectIds.map(projectId => clubhouse.listStories(projectId)))
+      .then(responses => {
+        res.send([].concat(...responses))
+      })
+      .catch(err => console.log(err));
+  } else {
+    res
+      .status('400')
+      .send({ 'error': 'Need a list of project ids to list stories for those projects.' });
+  }
+});
+
 if (process.env.NODE_ENV === 'production') {
   // Serve any static files
   app.use(express.static(path.join(__dirname, 'client/build')));
