@@ -40,8 +40,6 @@ class App extends Component {
         // Get stories for projects
         this.getStories(projectIds, {started: true, completed: true})
           .then(stories => {
-            console.log(stories);
-
             function dayCount(started_date, completed_date) {
               const oneDay = 24 * 60 * 60 * 1000;
               const diffDays = Math.round(Math.abs((new Date(started_date).getTime() - new Date(completed_date).getTime())/(oneDay)));
@@ -53,7 +51,8 @@ class App extends Component {
               .filter(story => story.started_at !== story.completed_at)
               .map(story => ({
                   t: new Date(story.completed_at),
-                  y: dayCount(story.started_at, story.completed_at) + 1
+                  y: dayCount(story.started_at, story.completed_at) + 1,
+                  x: story.name
                 })
               );
 
@@ -218,6 +217,16 @@ class App extends Component {
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
+                  tooltips: {
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+                          const dataset = data.datasets[tooltipItem.datasetIndex];
+                          const dataItem = dataset.data[tooltipItem.index];
+
+                          return `${dataItem.x}: ${dataItem.y} `;
+                      }
+                    }
+                  },
                   scales: {
                     xAxes: [{
                         type: 'time',
@@ -226,7 +235,8 @@ class App extends Component {
                           tooltipFormat: 'MMM D h:mm a'
                         }
                     }]
-                  }
+                  },
+                  
                 }
               }/> 
           </div>
