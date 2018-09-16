@@ -49,21 +49,92 @@ class App extends Component {
               return diffDays;
             }
 
-            const data = stories.map(story => {
-              return {
-                t: story.completed_at,
-                y: dayCount(story.started_at, story.completed_at) + 1
+            const scatterPoints = stories
+              .filter(story => story.started_at !== story.completed_at)
+              .map(story => ({
+                  t: new Date(story.completed_at),
+                  y: dayCount(story.started_at, story.completed_at) + 1
+                })
+              );
+
+            const sprints = {
+              'q3s1': {
+                duration: [new Date('2018-07-11T00:00:00Z'), new Date('2018-07-24T00:00:00Z')],
+                cycleTimeSum: 0,
+                cycleTimeCount: 0
+              },
+              'q3s2': {
+                duration: [new Date('2018-07-25T00:00:00Z'), new Date('2018-08-07T00:00:00Z')],
+                cycleTimeSum: 0,
+                cycleTimeCount: 0
+              },
+              'q3s3': {
+                duration: [new Date('2018-08-08T00:00:00Z'), new Date('2018-08-21T00:00:00Z')],
+                cycleTimeSum: 0,
+                cycleTimeCount: 0
+              },
+              'q3s4': {
+                duration: [new Date('2018-08-22T00:00:00Z'), new Date('2018-09-04T00:00:00Z')],
+                cycleTimeSum: 0,
+                cycleTimeCount: 0
+              },
+              'q3s5': {
+                duration: [new Date('2018-09-05T00:00:00Z'), new Date('2018-09-18T00:00:00Z')],
+                cycleTimeSum: 0,
+                cycleTimeCount: 0
+              },
+              'q3s6': {
+                duration: [new Date('2018-09-19T00:00:00Z'), new Date('2018-10-02T00:00:00Z')],
+                cycleTimeSum: 0,
+                cycleTimeCount: 0
               }
+            }
+
+            const sprintNames = Object.keys(sprints);
+
+            const sprintBuckedtedPoints = scatterPoints.reduce((sprints, currentPoint) => {
+              sprintNames.some(sprintName => {
+                const sprint = sprints[sprintName];
+
+                if (currentPoint.t > sprint.duration[0] && currentPoint.t <= sprint.duration[1]) {
+                  sprint.cycleTimeSum = sprint.cycleTimeSum + currentPoint.y;
+                  sprint.cycleTimeCount = sprint.cycleTimeCount + 1;
+
+                  return true;
+                }
+              });
+
+              return sprints;
+            }, sprints);
+
+            const linePoints = sprintNames.map(sprintName => {
+              const sprintBucket = sprintBuckedtedPoints[sprintName];
+
+              return {
+                t: sprintBucket.duration[1],
+                y: sprintBucket.cycleTimeCount ? (sprintBucket.cycleTimeSum/sprintBucket.cycleTimeCount).toFixed(2) : 0,
+                x: sprintName
+              };
             });
 
-            console.log(data)
+            console.log(linePoints);
 
             this.setState({
               chartData: {
                 datasets: [{
-                  label: 'Cycle times',
-                  data,
+                  label: 'Story cycle time',
+                  data: scatterPoints,
                   borderWidth: 1
+                }, {
+                  label: 'Line Dataset',
+                  data: linePoints,
+
+                  // Changes this dataset to become a line
+                  type: 'line',
+                  borderColor: 'blue',
+                  borderWidth: 1,
+                  showLine: true,
+                  fill: false
                 }]
               }
             })
