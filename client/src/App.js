@@ -52,7 +52,7 @@ class App extends Component {
             const data = stories.map(story => {
               return {
                 t: story.completed_at,
-                y: dayCount(story.started_at, story.completed_at)
+                y: dayCount(story.started_at, story.completed_at) + 1
               }
             });
 
@@ -149,7 +149,11 @@ class App extends Component {
                   maintainAspectRatio: false,
                   scales: {
                     xAxes: [{
-                        type: 'time'
+                        type: 'time',
+                        time: {
+                          isoWeekday: true,
+                          tooltipFormat: 'MMM D h:mm a'
+                        }
                     }]
                   }
                 }
